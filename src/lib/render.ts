@@ -2,7 +2,7 @@ import * as cheerio from "cheerio";
 import type { AnyNode } from "domhandler";
 import { LABELS } from "./labels";
 import { DEFAULT_LANGUAGE, type Language } from "./language";
-import { PUBLIC_ORIGIN } from "./origin";
+import { publicOrigin } from "./origin";
 import type { HarmonyDocumentValue } from "./types";
 import { generateHuaweiDocUrl } from "./url";
 
@@ -352,5 +352,5 @@ export function renderDocumentMarkdown(
   // here would change the ETag on every request for an unchanged page and make
   // conditional requests and incremental indexing impossible. The retrieval time is
   // served as the X-Retrieved-At response header instead.
-  return `---\ntitle: ${title}\nsource: ${sourceUrl}\ncategory: ${category}\nlanguage: ${language}\n---\n\n# ${title}\n\n${body}\n\n---\n\n*Extracted by [hulistmi.ai](${PUBLIC_ORIGIN}) - Making HarmonyOS docs AI-readable.*\n*This is unofficial content. Source documentation belongs to Huawei.*\n`;
+  return `---\ntitle: ${title}\nsource: ${sourceUrl}\ncategory: ${category}\nlanguage: ${language}\n---\n\n# ${title}\n\n${body}\n\n---\n\n*Extracted by [hulistmi.ai](${publicOrigin()}) - Making HarmonyOS docs AI-readable.*\n*This is unofficial content. Source documentation belongs to Huawei.*\n`;
 }
