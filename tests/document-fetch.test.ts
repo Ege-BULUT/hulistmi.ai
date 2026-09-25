@@ -59,9 +59,9 @@ describe("HarmonyOS document fetch", () => {
       })
       .mockResolvedValueOnce({ code: 500, message: "fail" });
 
-    await expect(fetchGuidePageData("does-not-exist-xyz")).rejects.toBeInstanceOf(
-      NotFoundError,
-    );
+    await expect(
+      fetchGuidePageData("does-not-exist-xyz"),
+    ).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it("still reports a payload with no code at all as a contract change", async () => {
