@@ -50,30 +50,33 @@ describe("HarmonyOS document fetch", () => {
     });
   });
 
-  it("accepts slugs containing underscores", async () => {
-    mockedFetchHuaweiJson
-      .mockResolvedValueOnce({
-        code: 0,
-        message: "success",
-        value: { isGrayUser: 0 },
-      })
-      .mockResolvedValueOnce({
-        code: 0,
-        message: "success",
-        value: {
-          status: "4",
-          title: "Obtaining and Storing Images",
-          content: { content: "<p>Save an image.</p>" },
-        },
+  it.each(["bpta-image_get_and_save", "_ark_ui_compile"])(
+    "accepts slugs containing underscores (%s)",
+    async (slug) => {
+      mockedFetchHuaweiJson
+        .mockResolvedValueOnce({
+          code: 0,
+          message: "success",
+          value: { isGrayUser: 0 },
+        })
+        .mockResolvedValueOnce({
+          code: 0,
+          message: "success",
+          value: {
+            status: "4",
+            title: "Obtaining and Storing Images",
+            content: { content: "<p>Save an image.</p>" },
+          },
+        });
+
+      const page = await fetchGuidePageData(slug);
+
+      expect(page.title).toBe("Obtaining and Storing Images");
+      expect(mockedFetchHuaweiJson.mock.calls[1][0].body).toMatchObject({
+        objectId: slug,
       });
-
-    const page = await fetchGuidePageData("bpta-image_get_and_save");
-
-    expect(page.title).toBe("Obtaining and Storing Images");
-    expect(mockedFetchHuaweiJson.mock.calls[1][0].body).toMatchObject({
-      objectId: "bpta-image_get_and_save",
-    });
-  });
+    },
+  );
 
   it("builds verified requests for valid guide slugs that are not prelisted", async () => {
     mockedFetchHuaweiJson
