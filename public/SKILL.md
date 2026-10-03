@@ -16,6 +16,7 @@ Both English (`en`, default) and Chinese (`cn`) documentation are supported. For
 - `harmonyos-releases`
 - `design-guides`
 - `best-practices`
+- `harmonyos-faqs`
 
 ## HTTP API
 
@@ -26,14 +27,15 @@ Both English (`en`, default) and Chinese (`cn`) documentation are supported. For
 - `GET /consumer/{en|cn}/doc/harmonyos-releases/<path>`
 - `GET /consumer/{en|cn}/doc/design-guides/<path>`
 - `GET /consumer/{en|cn}/doc/best-practices/<path>`
+- `GET /consumer/{en|cn}/doc/harmonyos-faqs/<path>`
 - `GET /search?q=<query>&language=en|cn`
-- `GET /catalog?catalogName=<name>&language=en|cn` (any of the 5 supported catalogs above)
+- `GET /catalog?catalogName=<name>&language=en|cn` (any of the 6 supported catalogs above)
 
 ## MCP Tools
 
 - `searchHarmonyOSDocumentation` — accepts optional `language: "en" | "cn"` (default `"en"`)
 - `fetchHarmonyOSDocumentation` — accepts optional `language: "en" | "cn"` (default `"en"`); the `path` must start with one of the supported catalog names (e.g. `harmonyos-guides/<slug>`, `harmonyos-releases/<slug>`, …)
-- `fetchHarmonyOSCatalog` — accepts optional `language: "en" | "cn"` (default `"en"`) and `catalogName` (one of the 5 supported catalogs; default `harmonyos-guides`)
+- `fetchHarmonyOSCatalog` — accepts optional `language: "en" | "cn"` (default `"en"`) and `catalogName` (one of the 6 supported catalogs; default `harmonyos-guides`)
 
 ## CLI
 
@@ -42,3 +44,4 @@ Both English (`en`, default) and Chinese (`cn`) documentation are supported. For
 - `hulistmi fetch /consumer/cn/doc/harmonyos-guides/start-overview`
 - `hulistmi fetch /consumer/en/doc/harmonyos-releases/overview-allversion`
 - `hulistmi fetch /consumer/en/doc/best-practices/bpta-app-architecture-overview`
+- `hulistmi fetch /consumer/en/doc/harmonyos-faqs/faqs-performance-analysis-kit-1`

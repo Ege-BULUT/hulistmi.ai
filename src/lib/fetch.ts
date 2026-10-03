@@ -9,6 +9,8 @@ export class UpstreamTimeoutError extends Error {}
 export class ValidationError extends Error {}
 
 export const HULISTMI_USER_AGENT = `hulistmi-ai/${VERSION} (+${PUBLIC_ORIGIN}/bot)`;
+// The code Huawei returns, with HTTP 200, for a document that does not exist.
+const HUAWEI_DOCUMENT_NOT_FOUND = "92531031";
 export const UPSTREAM_TIMEOUT_MS = 10_000;
 export const MAX_UPSTREAM_RESPONSE_BYTES = 1_048_576;
 export const MAX_RENDERED_MARKDOWN_BYTES = 524_288;
@@ -152,7 +154,7 @@ export async function fetchHuaweiJson<T>(
   const data = JSON.parse(await readCappedText(response, maxBytes)) as T & {
     code?: number | string;
   };
-  if (data.code === 404 || data.code === "404")
+  if (String(data.code) === HUAWEI_DOCUMENT_NOT_FOUND)
     throw new NotFoundError("Huawei document not found");
   return data;
 }

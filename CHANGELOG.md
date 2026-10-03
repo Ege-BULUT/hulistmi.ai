@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0
+
+### Minor Changes
+
+- Add the `harmonyos-faqs` catalog.
+
+### Patch Changes
+
+- Answer 404 instead of 502 for a document that does not exist on Huawei.
+
 ## 1.1.4
 
 ### Patch Changes

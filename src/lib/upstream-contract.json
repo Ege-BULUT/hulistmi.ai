@@ -64,6 +64,17 @@
         }
       },
       "responseHeaders": { "content-type": "application/json" }
+    },
+    "harmonyos-faqs": {
+      "request": {
+        "url": "https://svc-drcn.developer.huawei.com/community/servlet/consumer/cn/documentPortal/getCatalogTree",
+        "headers": {},
+        "body": {
+          "catalogName": "harmonyos-faqs",
+          "showHide": "1"
+        }
+      },
+      "responseHeaders": { "content-type": "application/json" }
     }
   },
   "documents": {
