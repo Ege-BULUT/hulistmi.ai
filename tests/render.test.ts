@@ -53,6 +53,18 @@ describe("HarmonyOS Markdown rendering", () => {
     expect(markdown).toContain("Extracted by [hulistmi.ai]");
   });
 
+  it("renders the same bytes for the same document every time", () => {
+    const render = () =>
+      renderDocumentMarkdown(
+        { status: "4", title: "Start", content: { content: "<p>Body</p>" } },
+        "harmonyos-guides/start-overview",
+        "HarmonyOS Guides",
+      );
+
+    expect(render()).toBe(render());
+    expect(render()).not.toContain("timestamp:");
+  });
+
   it("emits cn frontmatter and cn source URL when language=cn", () => {
     const markdown = renderDocumentMarkdown(
       { status: "4", title: "Start", content: { content: "<p>Body</p>" } },
@@ -81,5 +93,31 @@ describe("HarmonyOS Markdown rendering", () => {
       "cn",
     );
     expect(cn).toContain("title: 未命名");
+  });
+});
+
+describe("list rendering", () => {
+  it("keeps a list item's inline content on one line and preserves code spans", () => {
+    expect(
+      htmlToMarkdown(
+        "<ul><li><strong>Create</strong>: A UIAbility instance has been created. The system triggers the <code>onCreate</code> callback.</li></ul>",
+      ),
+    ).toBe(
+      "- **Create**: A UIAbility instance has been created. The system triggers the `onCreate` callback.",
+    );
+  });
+
+  it("indents real blocks inside a list item instead of flattening them", () => {
+    expect(
+      htmlToMarkdown(
+        "<ul><li>Outer <code>x</code><pre>const a = 1;</pre><ul><li>inner</li></ul></li></ul>",
+      ),
+    ).toBe("- Outer `x`\n\n  ```\n  const a = 1;\n  ```\n  - inner");
+  });
+
+  it("keeps a definition list's term and definition apart", () => {
+    expect(
+      htmlToMarkdown("<dl><dt>Term</dt><dd>Definition text</dd></dl>"),
+    ).toBe("**Term**\n\nDefinition text");
   });
 });

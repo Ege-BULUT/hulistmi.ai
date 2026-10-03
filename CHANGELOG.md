@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.4
+
+### Patch Changes
+
+- [#3](https://github.com/tolunayozturk/hulistmi.ai/pull/3) [`377acab`](https://github.com/tolunayozturk/hulistmi.ai/commit/377acab3f9b2cda62b6e95e31617a318b4693cd4) - Keep the inline content of a list item on one line, and keep code spans. Render a definition list as a bold term above its definition.
+
+- [#4](https://github.com/tolunayozturk/hulistmi.ai/pull/4) [`4318c48`](https://github.com/tolunayozturk/hulistmi.ai/commit/4318c482f73e83d378ae6728aba6d791ac5bec35) - Remove the `timestamp` field from the document frontmatter, so the same page always has the same ETag. The retrieval time is now in the `X-Retrieved-At` response header.
+
+- [#1](https://github.com/tolunayozturk/hulistmi.ai/pull/1) [`3782de1`](https://github.com/tolunayozturk/hulistmi.ai/commit/3782de1dd8040be273ff3be4d585d429dbcca480) - Accept underscores in document slugs, also as the first character. Pages such as `_ark_ui_compile` were not reachable.
+
+- [#6](https://github.com/tolunayozturk/hulistmi.ai/pull/6) [`6185b64`](https://github.com/tolunayozturk/hulistmi.ai/commit/6185b64f2f6a5cdb2b84e91f9750db9834a605bb) - Correct types in the published source.
+
 ## 1.1.3
 
 ### Patch Changes

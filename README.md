@@ -262,15 +262,14 @@ npm run cf-typegen
 
 ### Publishing
 
-Releases are driven by [Changesets](https://github.com/changesets/changesets) and npm [trusted publishing](https://docs.npmjs.com/trusted-publishers) (OIDC).
+Releases use [Changesets](https://github.com/changesets/changesets) and npm [trusted publishing](https://docs.npmjs.com/trusted-publishers) (OIDC). No `NPM_TOKEN` is necessary.
 
-- Author a release: add a changeset via `npx changeset`, commit it, push to `master`.
-- `.github/workflows/changesets.yml` (on push to `master`) opens a "Version Packages" PR
-  that bumps `package.json`, updates `CHANGELOG.md`, and tags `v<x.y.z>`.
-- `.github/workflows/release.yml` (on push of `v*` tags) runs
-  `npm publish --provenance --access public` via trusted publishing (`id-token: write`),
-  then creates the GitHub release with generated notes.
-- No long-lived npm token (`NPM_TOKEN`) is required.
+1. Merge pull requests into `dev`. CI runs on each pull request.
+2. On `dev`, add a changeset for each change with `npx changeset`.
+3. Run `npm run version:packages`. This bumps `package.json` and `src/lib/version.ts` and updates `CHANGELOG.md`. Commit the result to `dev`.
+4. Open a pull request from `dev` to `master`, and merge it with a merge commit.
+
+On a push to `master`, `.github/workflows/release.yml` publishes the package with provenance, pushes the `v<x.y.z>` tag, creates the GitHub release, and deploys the Worker. If changesets are still pending on `master`, the workflow opens a "Version Packages" pull request instead of a publish.
 
 ## Acknowledgements
 
