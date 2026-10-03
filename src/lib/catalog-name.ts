@@ -7,7 +7,8 @@ export type CatalogName =
   | "harmonyos-references"
   | "harmonyos-releases"
   | "design-guides"
-  | "best-practices";
+  | "best-practices"
+  | "harmonyos-faqs";
 
 export const SUPPORTED_CATALOGS = [
   "harmonyos-guides",
@@ -15,6 +16,7 @@ export const SUPPORTED_CATALOGS = [
   "harmonyos-releases",
   "design-guides",
   "best-practices",
+  "harmonyos-faqs",
 ] as const satisfies readonly [CatalogName, ...CatalogName[]];
 
 const SUPPORTED_CATALOGS_SET: ReadonlySet<CatalogName> = new Set(
@@ -30,7 +32,8 @@ export type CatalogCategoryKey =
   | "referencesCategory"
   | "releasesCategory"
   | "designCategory"
-  | "bestPracticesCategory";
+  | "bestPracticesCategory"
+  | "faqsCategory";
 
 export const CATALOG_CATEGORY_KEYS: Record<CatalogName, CatalogCategoryKey> = {
   "harmonyos-guides": "guidesCategory",
@@ -38,6 +41,7 @@ export const CATALOG_CATEGORY_KEYS: Record<CatalogName, CatalogCategoryKey> = {
   "harmonyos-releases": "releasesCategory",
   "design-guides": "designCategory",
   "best-practices": "bestPracticesCategory",
+  "harmonyos-faqs": "faqsCategory",
 };
 
 export type CatalogTitleKey =
@@ -45,7 +49,8 @@ export type CatalogTitleKey =
   | "referencesCatalog"
   | "releasesCatalog"
   | "designCatalog"
-  | "bestPracticesCatalog";
+  | "bestPracticesCatalog"
+  | "faqsCatalog";
 
 export const CATALOG_TITLE_KEYS: Record<CatalogName, CatalogTitleKey> = {
   "harmonyos-guides": "guidesCatalog",
@@ -53,4 +58,5 @@ export const CATALOG_TITLE_KEYS: Record<CatalogName, CatalogTitleKey> = {
   "harmonyos-releases": "releasesCatalog",
   "design-guides": "designCatalog",
   "best-practices": "bestPracticesCatalog",
+  "harmonyos-faqs": "faqsCatalog",
 };
