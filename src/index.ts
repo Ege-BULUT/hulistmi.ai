@@ -29,7 +29,7 @@ import { buildWebMcpManifest } from "./lib/webmcp";
 
 export interface Env {
   ASSETS: Fetcher;
-  /** Origin this deployment presents as. Defaults to the serving origin. */
+  /** Origin this deployment presents as. Defaults to DEFAULT_PUBLIC_ORIGIN. */
   PUBLIC_ORIGIN?: string;
   RATE_LIMITER?: {
     limit(options: { key: string }): Promise<{ success: boolean }>;
@@ -45,10 +45,11 @@ function origin(c: Context): string {
   return new URL(c.req.url).origin;
 }
 
-// Every deployment speaks as itself: the binding wins, otherwise the origin actually
-// serving the request.
+// The origin comes only from the binding, never from the request: every request in an
+// isolate shares it, so a per-request value would leak across concurrent requests on a
+// Worker that answers on more than one hostname.
 app.use("*", async (c, next) => {
-  configurePublicOrigin(c.env?.PUBLIC_ORIGIN ?? origin(c));
+  configurePublicOrigin(c.env?.PUBLIC_ORIGIN);
   await next();
 });
 

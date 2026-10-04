@@ -4,8 +4,9 @@
  *
  * A hard-coded constant meant a self-hosted deployment attributed its documents to
  * someone else's Worker and identified itself to Huawei as that instance. It is now
- * resolved per deployment: the PUBLIC_ORIGIN binding wins, the serving origin is used
- * when there is no binding, and the constant is only the last resort.
+ * resolved per deployment from the PUBLIC_ORIGIN binding (HULISTMI_PUBLIC_ORIGIN for
+ * the CLI), and the constant is the fallback when it is not set. It is never taken
+ * from the request, because the value is shared by every request in the isolate.
  */
 export const DEFAULT_PUBLIC_ORIGIN =
   "https://hulistmi-ai.y6vd2dkjgb.workers.dev";
