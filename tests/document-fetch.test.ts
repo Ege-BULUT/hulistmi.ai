@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fetchHuaweiJson } from "../src/lib/fetch";
-import { fetchGuidePageData } from "../src/lib/guides";
+import { fetchCatalogPageData } from "../src/lib/generic";
 
 vi.mock("../src/lib/fetch", () => ({
   fetchHuaweiJson: vi.fn(),
@@ -34,7 +34,10 @@ describe("HarmonyOS document fetch", () => {
         },
       });
 
-    const page = await fetchGuidePageData("start-overview");
+    const page = await fetchCatalogPageData(
+      "harmonyos-guides",
+      "start-overview",
+    );
 
     expect(page.title).toBe("Preparations for Development");
     expect(mockedFetchHuaweiJson).toHaveBeenCalledTimes(2);
@@ -69,7 +72,7 @@ describe("HarmonyOS document fetch", () => {
           },
         });
 
-      const page = await fetchGuidePageData(slug);
+      const page = await fetchCatalogPageData("harmonyos-guides", slug);
 
       expect(page.title).toBe("Obtaining and Storing Images");
       expect(mockedFetchHuaweiJson.mock.calls[1][0].body).toMatchObject({
@@ -95,7 +98,10 @@ describe("HarmonyOS document fetch", () => {
         },
       });
 
-    const page = await fetchGuidePageData("window-rotation");
+    const page = await fetchCatalogPageData(
+      "harmonyos-guides",
+      "window-rotation",
+    );
 
     expect(page.title).toBe("Window Rotation");
     expect(mockedFetchHuaweiJson).toHaveBeenCalledTimes(2);
@@ -139,7 +145,10 @@ describe("HarmonyOS document fetch", () => {
         },
       });
 
-    const page = await fetchGuidePageData("window-rotation");
+    const page = await fetchCatalogPageData(
+      "harmonyos-guides",
+      "window-rotation",
+    );
 
     expect(page.title).toBe("Window Rotation");
     expect(mockedFetchHuaweiJson).toHaveBeenCalledTimes(3);
@@ -168,7 +177,7 @@ describe("HarmonyOS document fetch", () => {
         },
       });
 
-    await fetchGuidePageData("start-overview", "cn");
+    await fetchCatalogPageData("harmonyos-guides", "start-overview", "cn");
 
     expect(mockedFetchHuaweiJson.mock.calls[0][0].body).toMatchObject({
       catalogName: "harmonyos-guides",
@@ -199,7 +208,7 @@ describe("HarmonyOS document fetch", () => {
         },
       });
 
-    await fetchGuidePageData("window-rotation", "cn");
+    await fetchCatalogPageData("harmonyos-guides", "window-rotation", "cn");
 
     expect(mockedFetchHuaweiJson.mock.calls[0][0].body).toMatchObject({
       catalogName: "harmonyos-guides",
@@ -241,7 +250,7 @@ describe("HarmonyOS document fetch", () => {
         },
       });
 
-    await fetchGuidePageData("window-rotation", "cn");
+    await fetchCatalogPageData("harmonyos-guides", "window-rotation", "cn");
 
     expect(mockedFetchHuaweiJson.mock.calls[1][0].body).toMatchObject({
       centerPrefix: "hmos",
