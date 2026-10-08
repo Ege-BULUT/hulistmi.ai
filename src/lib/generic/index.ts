@@ -10,7 +10,7 @@ export async function fetchCatalogPageData(
   catalogName: CatalogName,
   path: string,
   language: Language,
-  origin: string,
+  origin: string | undefined,
 ): Promise<HarmonyDocumentValue> {
   return fetchHarmonyDocumentPageData(catalogName, path, language, origin);
 }
@@ -20,7 +20,7 @@ export function renderCatalogPageMarkdown(
   value: HarmonyDocumentValue,
   path: string,
   language: Language,
-  origin: string,
+  origin: string | undefined,
 ): string {
   return renderDocumentMarkdown(
     value,
@@ -35,7 +35,7 @@ export async function fetchAndRenderCatalogPage(
   catalogName: CatalogName,
   path: string,
   language: Language,
-  origin: string,
+  origin: string | undefined,
 ): Promise<{ sourceUrl: string; content: string }> {
   const data = await fetchCatalogPageData(catalogName, path, language, origin);
   const content = renderCatalogPageMarkdown(

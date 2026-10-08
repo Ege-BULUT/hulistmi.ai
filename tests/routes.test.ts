@@ -1,6 +1,5 @@
 import { SELF } from "cloudflare:test";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DEFAULT_PUBLIC_ORIGIN } from "../src/lib/origin";
 
 const fetchHuaweiJsonMock = vi.fn(
   async (request: { url: string; body?: unknown }) => {
@@ -117,16 +116,6 @@ describe("GET /bot", () => {
     expect(body).toContain("hulistmi-ai/");
     expect(body).toContain("/bot)");
     expect(body).not.toContain("/#bot");
-  });
-
-  it("presents the configured origin, not the hostname serving the request", async () => {
-    const [a, b] = await Promise.all(
-      ["https://a.example.com/bot", "https://b.example.com/bot"].map(
-        async (url) => (await SELF.fetch(new Request(url))).text(),
-      ),
-    );
-    expect(a).toContain(`(+${DEFAULT_PUBLIC_ORIGIN}/bot)`);
-    expect(b).toBe(a);
   });
 });
 

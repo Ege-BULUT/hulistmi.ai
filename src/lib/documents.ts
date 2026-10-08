@@ -49,7 +49,7 @@ export async function fetchHarmonyDocumentPageData(
   catalogName: CatalogName,
   path: string,
   language: Language,
-  origin: string,
+  origin: string | undefined,
 ): Promise<HarmonyDocumentValue> {
   const pinned = DOCUMENTS[documentKey(catalogName, path)];
   const entry = withLanguage(
@@ -186,7 +186,7 @@ function buildCenterRequests(
 
 async function fetchAndValidateDocument(
   request: VerifiedHuaweiRequest,
-  origin: string,
+  origin: string | undefined,
 ): Promise<HarmonyDocumentValue> {
   const response = await fetchHuaweiJson<HarmonyDocumentResponse>(
     request,

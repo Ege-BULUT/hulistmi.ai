@@ -51,7 +51,7 @@ function buildSearchBody(query: string, language: Language): unknown {
 export async function searchHarmonyOSDocs(
   query: string,
   language: Language,
-  origin: string,
+  origin: string | undefined,
 ): Promise<SearchResponse> {
   const trimmed = query.trim();
   if (!trimmed) throw new ValidationError("Search query is required");

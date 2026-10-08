@@ -55,6 +55,20 @@ describe("HarmonyOS Markdown rendering", () => {
     expect(markdown).toContain("Extracted by [hulistmi.ai]");
   });
 
+  it("claims no origin without one, as from the CLI, but links the hosted version", () => {
+    const markdown = renderDocumentMarkdown(
+      { status: "4", title: "Start", content: { content: "<p>Body</p>" } },
+      "harmonyos-guides/start-overview",
+      "HarmonyOS Guides",
+      "en",
+      undefined,
+    );
+    expect(markdown.match(/\]\(https?:\/\/[^)]+\)/g)).toEqual([
+      "](https://hulistmi-ai.y6vd2dkjgb.workers.dev)",
+    ]);
+    expect(markdown).not.toContain("undefined");
+  });
+
   it("renders the same bytes for the same document every time", () => {
     const render = () =>
       renderDocumentMarkdown(

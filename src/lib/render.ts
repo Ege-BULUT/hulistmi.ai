@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import type { AnyNode } from "domhandler";
 import { LABELS } from "./labels";
 import type { Language } from "./language";
+import { HOSTED_ORIGIN, selfHostedNote } from "./origin";
 import type { HarmonyDocumentValue } from "./types";
 import { generateHuaweiDocUrl } from "./url";
 
@@ -343,7 +344,7 @@ export function renderDocumentMarkdown(
   path: string,
   category: string,
   language: Language,
-  origin: string,
+  origin: string | undefined,
 ): string {
   const title = value.title || LABELS[language].untitled;
   const sourceUrl = generateHuaweiDocUrl(path, language);
@@ -352,5 +353,23 @@ export function renderDocumentMarkdown(
   // here would change the ETag on every request for an unchanged page and make
   // conditional requests and incremental indexing impossible. The retrieval time is
   // served as the X-Retrieved-At response header instead.
-  return `---\ntitle: ${title}\nsource: ${sourceUrl}\ncategory: ${category}\nlanguage: ${language}\n---\n\n# ${title}\n\n${body}\n\n---\n\n*Extracted by [hulistmi.ai](${origin}) - Making HarmonyOS docs AI-readable.*\n*This is unofficial content. Source documentation belongs to Huawei.*\n`;
+  return `---\ntitle: ${title}\nsource: ${sourceUrl}\ncategory: ${category}\nlanguage: ${language}\n---\n\n# ${title}\n\n${body}\n\n---\n\n${footer(origin)}`;
+}
+
+function footer(origin: string | undefined): string {
+  const lines = [
+    origin
+      ? `*Extracted by [hulistmi.ai](${origin}) - Making HarmonyOS docs AI-readable.*`
+      : "*Extracted by hulistmi.ai - Making HarmonyOS docs AI-readable.*",
+  ];
+  const hosted = (url: string) => `[hulistmi.ai](${url})`;
+  // Without an origin, as from the CLI, the output comes from no deployment at all.
+  const note = origin
+    ? selfHostedNote(origin, hosted)
+    : `Hosted version: ${hosted(HOSTED_ORIGIN)}`;
+  if (note) lines.push(`*${note}*`);
+  lines.push(
+    "*This is unofficial content. Source documentation belongs to Huawei.*",
+  );
+  return `${lines.join("\n")}\n`;
 }

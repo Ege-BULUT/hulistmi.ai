@@ -26,7 +26,7 @@ export interface HarmonyCatalog {
 export async function fetchHarmonyOSCatalog(
   catalogName: CatalogName,
   language: Language,
-  origin: string,
+  origin: string | undefined,
 ): Promise<HarmonyCatalog> {
   if (!isCatalogName(catalogName))
     throw new NotFoundError("Unsupported HarmonyOS catalog");

@@ -13,7 +13,12 @@ import {
 import { fetchAndRenderCatalogPage } from "./lib/generic";
 import { DEFAULT_LANGUAGE, isLanguage, type Language } from "./lib/language";
 import { createMcpServer, MCP_SERVER_INFO } from "./lib/mcp";
-import { configurePublicOrigin, publicOrigin } from "./lib/origin";
+import {
+  hulistmiUserAgent,
+  InvalidOriginError,
+  parsePublicOrigin,
+  selfHostedNote,
+} from "./lib/origin";
 import { enforceRateLimit } from "./lib/rate-limit";
 import { renderSearchMarkdown, searchHarmonyOSDocs } from "./lib/search";
 import {
@@ -24,12 +29,11 @@ import {
   skillIndexHeaders,
 } from "./lib/skill";
 import { UPSTREAM_CONTRACT } from "./lib/upstream-contract";
-import { VERSION } from "./lib/version";
 import { buildWebMcpManifest } from "./lib/webmcp";
 
 export interface Env {
   ASSETS: Fetcher;
-  /** Origin this deployment presents as. Defaults to DEFAULT_PUBLIC_ORIGIN. */
+  /** Origin this deployment presents as, for a proxy or custom domain. Defaults to the request's origin. */
   PUBLIC_ORIGIN?: string;
   RATE_LIMITER?: {
     limit(options: { key: string }): Promise<{ success: boolean }>;
@@ -41,17 +45,14 @@ const ROBOTS_HEADER = "noindex, nofollow, noarchive";
 const DOC_CACHE = "public, max-age=3600, s-maxage=86400";
 const SHORT_CACHE = "public, max-age=300, s-maxage=600";
 
+// Computed per request and passed down, never stored: a Worker can answer on more
+// than one hostname, and concurrent requests must not see each other's origin.
 function origin(c: Context): string {
-  return new URL(c.req.url).origin;
+  return (
+    parsePublicOrigin("PUBLIC_ORIGIN", c.env?.PUBLIC_ORIGIN) ??
+    new URL(c.req.url).origin
+  );
 }
-
-// The origin comes only from the binding, never from the request: every request in an
-// isolate shares it, so a per-request value would leak across concurrent requests on a
-// Worker that answers on more than one hostname.
-app.use("*", async (c, next) => {
-  configurePublicOrigin(c.env?.PUBLIC_ORIGIN);
-  await next();
-});
 
 function wantsJson(c: Context): boolean {
   return c.req.header("Accept")?.includes("application/json") ?? false;
@@ -113,7 +114,7 @@ async function renderDocument(
     catalogName,
     path,
     language,
-    publicOrigin(),
+    origin(c),
   );
   const bounded = assertRenderedMarkdownWithinLimit(content);
   setNoIndex(c, DOC_CACHE);
@@ -141,16 +142,18 @@ app.get("/", async (c) =>
   c.env.ASSETS.fetch(new Request(new URL("/index.html", c.req.url))),
 );
 
-app.get("/bot", (c) =>
-  c.text(
-    `hulistmi.ai uses transparent, on-demand requests for HarmonyOS documentation and identifies itself with hulistmi-ai/${VERSION} (+${publicOrigin()}/bot).`,
+app.get("/bot", (c) => {
+  const self = origin(c);
+  const note = selfHostedNote(self);
+  return c.text(
+    `hulistmi.ai uses transparent, on-demand requests for HarmonyOS documentation and identifies itself with ${hulistmiUserAgent(self)}.${note ? ` ${note}` : ""}`,
     200,
     {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": SHORT_CACHE,
     },
-  ),
-);
+  );
+});
 
 app.get("/consumer/:lang/doc/:catalog/:path{.+}", async (c) => {
   const lang = c.req.param("lang");
@@ -173,7 +176,7 @@ app.get("/catalog", async (c) => {
   const catalog = await fetchHarmonyOSCatalog(
     catalogName,
     languageParam,
-    publicOrigin(),
+    origin(c),
   );
   setNoIndex(c, SHORT_CACHE);
   if (wantsJson(c)) return c.json(catalog);
@@ -191,11 +194,7 @@ app.get("/search", async (c) => {
   const languageParam = c.req.query("language") ?? DEFAULT_LANGUAGE;
   if (!isLanguage(languageParam))
     return c.json({ error: "Unsupported language" }, 400);
-  const result = await searchHarmonyOSDocs(
-    query,
-    languageParam,
-    publicOrigin(),
-  );
+  const result = await searchHarmonyOSDocs(query, languageParam, origin(c));
   setNoIndex(c, SHORT_CACHE);
   if (wantsJson(c)) return c.json(result);
   return c.text(
@@ -252,7 +251,7 @@ app.get(`/.well-known/agent-skills/${SKILL_NAME}/SKILL.md`, async (c) => {
 app.all("/mcp", async (c) => {
   const tooLarge = await assertMcpBodyWithinLimit(c.req.raw);
   if (tooLarge) return tooLarge;
-  const mcpServer = createMcpServer(publicOrigin());
+  const mcpServer = createMcpServer(origin(c));
   const transport = new StreamableHTTPTransport();
   await mcpServer.connect(transport);
   return transport.handleRequest(c);
@@ -262,6 +261,11 @@ app.onError((err, c) => {
   c.header("Cache-Control", "no-store");
   c.header("X-Robots-Tag", ROBOTS_HEADER);
   if (err instanceof NotFoundError) return c.json({ error: "Not found" }, 404);
+  if (err instanceof InvalidOriginError) {
+    // The operator's mistake: the detail goes to the logs, not to the public.
+    console.error(err.message);
+    return c.json({ error: "Server misconfigured" }, 500);
+  }
   if (err instanceof UpstreamPolicyError)
     return c.json(
       { error: "Upstream policy prevents rendering this content" },
