@@ -118,3 +118,49 @@ describe("deployment identity", () => {
     }
   });
 });
+
+describe("static pages", () => {
+  const PAGES = ["/", "/llms.txt", "/sitemap.xml", "/SKILL.md"];
+  const read = async (origin: string, path: string) => {
+    const res = await SELF.fetch(`${origin}${path}`);
+    expect(res.status).toBe(200);
+    return res.text();
+  };
+
+  it("name the deployment that serves them, and link the hosted one only from a self-hosted copy", async () => {
+    const self = "https://a.example.com";
+    const lines = (text: string) => text.split("\n").filter((l) => l.trim());
+    for (const path of PAGES) {
+      const hosted = await read(HOSTED, path);
+      const copy = await read(self, path);
+      expect(`${hosted}${copy}`).not.toContain("{{");
+      // The copy is the hosted page with its own origin in place of the hosted one,
+      // plus lines that link to the hosted version. A note on the hosted page, or a
+      // hosted address left anywhere else in the copy, breaks the equality.
+      expect(lines(copy).filter((l) => !l.includes(HOSTED))).toEqual(
+        lines(hosted.replaceAll(HOSTED, self)),
+      );
+      // Crawlers read the sitemap; it does not advertise.
+      expect(copy.includes(HOSTED)).toBe(path !== "/sitemap.xml");
+    }
+    expect(await read(self, "/llms.txt")).toContain(`\`${self}/mcp\``);
+  });
+
+  it("publishes a skill digest that matches the skill a self-hosted deployment serves", async () => {
+    const self = "https://a.example.com";
+    const index = await (
+      await SELF.fetch(`${self}/.well-known/agent-skills/index.json`)
+    ).json<{ skills: { url: string; digest: string }[] }>();
+    const skill = await (
+      await SELF.fetch(`${self}${index.skills[0].url}`)
+    ).arrayBuffer();
+    const digest = [
+      ...new Uint8Array(await crypto.subtle.digest("SHA-256", skill)),
+    ]
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+
+    expect(new TextDecoder().decode(skill)).toContain(HOSTED);
+    expect(index.skills[0].digest).toBe(`sha256:${digest}`);
+  });
+});

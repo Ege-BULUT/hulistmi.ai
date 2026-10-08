@@ -28,6 +28,7 @@ import {
   skillHeaders,
   skillIndexHeaders,
 } from "./lib/skill";
+import { fillPlaceholders } from "./lib/static-pages";
 import { UPSTREAM_CONTRACT } from "./lib/upstream-contract";
 import { buildWebMcpManifest } from "./lib/webmcp";
 
@@ -138,9 +139,23 @@ app.use("/catalog", publicLimit);
 app.use("/mcp", publicLimit);
 app.use("/consumer/:lang/doc/*", publicLimit);
 
-app.get("/", async (c) =>
-  c.env.ASSETS.fetch(new Request(new URL("/index.html", c.req.url))),
-);
+// Served through the Worker, not straight from the assets, so each deployment names
+// itself in them. The asset's ETag and length describe the unfilled file, so they are
+// replaced.
+async function serveStaticPage(c: Context, path: string): Promise<Response> {
+  const asset = await c.env.ASSETS.fetch(new Request(new URL(path, c.req.url)));
+  if (!asset.ok) return asset;
+  const format = path.endsWith(".html") ? "html" : "text";
+  const text = fillPlaceholders(await asset.text(), origin(c), format);
+  const headers = new Headers(asset.headers);
+  headers.delete("Content-Length");
+  headers.set("ETag", await sha256(text));
+  return new Response(text, { status: asset.status, headers });
+}
+
+app.get("/", (c) => serveStaticPage(c, "/index.html"));
+app.get("/llms.txt", (c) => serveStaticPage(c, "/llms.txt"));
+app.get("/sitemap.xml", (c) => serveStaticPage(c, "/sitemap.xml"));
 
 app.get("/bot", (c) => {
   const self = origin(c);
@@ -243,10 +258,13 @@ app.get("/.well-known/agent-skills/index.json", async (c) => {
   return c.json(await createSkillIndex(skill), 200, skillIndexHeaders);
 });
 
-app.get(`/.well-known/agent-skills/${SKILL_NAME}/SKILL.md`, async (c) => {
+async function serveSkill(c: Context): Promise<Response> {
   const skill = await loadSkill(c.env.ASSETS, origin(c));
   return new Response(skill.bytes, { headers: skillHeaders });
-});
+}
+
+app.get("/SKILL.md", serveSkill);
+app.get(`/.well-known/agent-skills/${SKILL_NAME}/SKILL.md`, serveSkill);
 
 app.all("/mcp", async (c) => {
   const tooLarge = await assertMcpBodyWithinLimit(c.req.raw);
