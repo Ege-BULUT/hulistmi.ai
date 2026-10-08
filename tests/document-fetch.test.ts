@@ -37,6 +37,8 @@ describe("HarmonyOS document fetch", () => {
     const page = await fetchCatalogPageData(
       "harmonyos-guides",
       "start-overview",
+      "en",
+      "https://example.com",
     );
 
     expect(page.title).toBe("Preparations for Development");
@@ -72,7 +74,12 @@ describe("HarmonyOS document fetch", () => {
           },
         });
 
-      const page = await fetchCatalogPageData("harmonyos-guides", slug);
+      const page = await fetchCatalogPageData(
+        "harmonyos-guides",
+        slug,
+        "en",
+        "https://example.com",
+      );
 
       expect(page.title).toBe("Obtaining and Storing Images");
       expect(mockedFetchHuaweiJson.mock.calls[1][0].body).toMatchObject({
@@ -101,6 +108,8 @@ describe("HarmonyOS document fetch", () => {
     const page = await fetchCatalogPageData(
       "harmonyos-guides",
       "window-rotation",
+      "en",
+      "https://example.com",
     );
 
     expect(page.title).toBe("Window Rotation");
@@ -148,6 +157,8 @@ describe("HarmonyOS document fetch", () => {
     const page = await fetchCatalogPageData(
       "harmonyos-guides",
       "window-rotation",
+      "en",
+      "https://example.com",
     );
 
     expect(page.title).toBe("Window Rotation");
@@ -177,7 +188,12 @@ describe("HarmonyOS document fetch", () => {
         },
       });
 
-    await fetchCatalogPageData("harmonyos-guides", "start-overview", "cn");
+    await fetchCatalogPageData(
+      "harmonyos-guides",
+      "start-overview",
+      "cn",
+      "https://example.com",
+    );
 
     expect(mockedFetchHuaweiJson.mock.calls[0][0].body).toMatchObject({
       catalogName: "harmonyos-guides",
@@ -208,7 +224,12 @@ describe("HarmonyOS document fetch", () => {
         },
       });
 
-    await fetchCatalogPageData("harmonyos-guides", "window-rotation", "cn");
+    await fetchCatalogPageData(
+      "harmonyos-guides",
+      "window-rotation",
+      "cn",
+      "https://example.com",
+    );
 
     expect(mockedFetchHuaweiJson.mock.calls[0][0].body).toMatchObject({
       catalogName: "harmonyos-guides",
@@ -250,7 +271,12 @@ describe("HarmonyOS document fetch", () => {
         },
       });
 
-    await fetchCatalogPageData("harmonyos-guides", "window-rotation", "cn");
+    await fetchCatalogPageData(
+      "harmonyos-guides",
+      "window-rotation",
+      "cn",
+      "https://example.com",
+    );
 
     expect(mockedFetchHuaweiJson.mock.calls[1][0].body).toMatchObject({
       centerPrefix: "hmos",

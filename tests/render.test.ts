@@ -39,11 +39,13 @@ describe("HarmonyOS Markdown rendering", () => {
     expect(markdown.match(/Video playback/g)).toHaveLength(1);
   });
 
-  it("adds source metadata and footer (en default)", () => {
+  it("adds source metadata and footer", () => {
     const markdown = renderDocumentMarkdown(
       { status: "4", title: "Start", content: { content: "<p>Body</p>" } },
       "harmonyos-guides/start-overview",
       "HarmonyOS Guides",
+      "en",
+      "https://example.com",
     );
     expect(markdown).toContain("title: Start");
     expect(markdown).toContain("language: en");
@@ -59,6 +61,8 @@ describe("HarmonyOS Markdown rendering", () => {
         { status: "4", title: "Start", content: { content: "<p>Body</p>" } },
         "harmonyos-guides/start-overview",
         "HarmonyOS Guides",
+        "en",
+        "https://example.com",
       );
 
     expect(render()).toBe(render());
@@ -71,6 +75,7 @@ describe("HarmonyOS Markdown rendering", () => {
       "harmonyos-guides/start-overview",
       "HarmonyOS 指南",
       "cn",
+      "https://example.com",
     );
     expect(markdown).toContain("language: cn");
     expect(markdown).toContain(
@@ -84,6 +89,8 @@ describe("HarmonyOS Markdown rendering", () => {
       { status: "4", title: "", content: { content: "<p>x</p>" } },
       "harmonyos-guides/x",
       "HarmonyOS Guides",
+      "en",
+      "https://example.com",
     );
     expect(en).toContain("title: Untitled");
     const cn = renderDocumentMarkdown(
@@ -91,6 +98,7 @@ describe("HarmonyOS Markdown rendering", () => {
       "harmonyos-guides/x",
       "HarmonyOS 指南",
       "cn",
+      "https://example.com",
     );
     expect(cn).toContain("title: 未命名");
   });

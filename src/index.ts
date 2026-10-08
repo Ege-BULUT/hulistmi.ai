@@ -113,6 +113,7 @@ async function renderDocument(
     catalogName,
     path,
     language,
+    publicOrigin(),
   );
   const bounded = assertRenderedMarkdownWithinLimit(content);
   setNoIndex(c, DOC_CACHE);
@@ -169,7 +170,11 @@ app.get("/catalog", async (c) => {
   const depth = depthRaw ? Number(depthRaw) : undefined;
   if (depth !== undefined && (!Number.isFinite(depth) || depth < 1))
     return c.json({ error: "Unsupported catalog" }, 400);
-  const catalog = await fetchHarmonyOSCatalog(catalogName, languageParam);
+  const catalog = await fetchHarmonyOSCatalog(
+    catalogName,
+    languageParam,
+    publicOrigin(),
+  );
   setNoIndex(c, SHORT_CACHE);
   if (wantsJson(c)) return c.json(catalog);
   return c.text(
@@ -186,7 +191,11 @@ app.get("/search", async (c) => {
   const languageParam = c.req.query("language") ?? DEFAULT_LANGUAGE;
   if (!isLanguage(languageParam))
     return c.json({ error: "Unsupported language" }, 400);
-  const result = await searchHarmonyOSDocs(query, languageParam);
+  const result = await searchHarmonyOSDocs(
+    query,
+    languageParam,
+    publicOrigin(),
+  );
   setNoIndex(c, SHORT_CACHE);
   if (wantsJson(c)) return c.json(result);
   return c.text(
@@ -243,7 +252,7 @@ app.get(`/.well-known/agent-skills/${SKILL_NAME}/SKILL.md`, async (c) => {
 app.all("/mcp", async (c) => {
   const tooLarge = await assertMcpBodyWithinLimit(c.req.raw);
   if (tooLarge) return tooLarge;
-  const mcpServer = createMcpServer();
+  const mcpServer = createMcpServer(publicOrigin());
   const transport = new StreamableHTTPTransport();
   await mcpServer.connect(transport);
   return transport.handleRequest(c);
